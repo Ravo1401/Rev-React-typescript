@@ -2,24 +2,24 @@ import { nanoid } from "nanoid";
 import { useState } from "react";
 import "./TaskManager.css";
 
-// TODO: create custom hook to manage task state
-export const TaskManager = () => {
-  const [title, setTitle] = useState("");
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [tasks, setTasks] = useState([]);
+interface Task {
+  id: string;
+  title: string;
+}
 
-  // remove task from list
-  const completeTask = (id) => {
+export const TaskManager = () => {
+  const [title, setTitle] = useState<string>("");
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const completeTask = (id: string) => {
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  const updateTask = (id, taskUpdate) => {
-    const newTasks = tasks.slice();
-
+  const updateTask = (id: string, taskUpdate: Partial<Task>) => {
+    const newTasks = [...tasks];
     const index = tasks.findIndex((task) => task.id === id);
-
-    newTasks[index] = taskUpdate;
-
+    newTasks[index] = { ...newTasks[index], ...taskUpdate };
     setTasks(newTasks);
   };
 
@@ -28,21 +28,21 @@ export const TaskManager = () => {
       return;
     }
 
-    const newTask = {
-      // using nanoid to generate unique id
+    const newTask: Task = {
       id: nanoid(),
       title,
     };
-    setTasks((prev) => prev.concat(newTask));
+
+    setTasks((prev) => [...prev, newTask]);
     setTitle("");
   };
 
-  const handleSearch = (ev) => {
+  const handleSearch = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(ev.target.value);
   };
 
   const filteredTasks = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchKeyword.toLowerCase()),
+    task.title.toLowerCase().includes(searchKeyword.toLowerCase())
   );
 
   return (
@@ -57,11 +57,8 @@ export const TaskManager = () => {
         <input
           type="text"
           value={title}
-          onChange={(ev) => {
-            setTitle(ev.target.value);
-          }}
+          onChange={(ev) => setTitle(ev.target.value)}
         />
-
         <button onClick={addTask}>Add Task</button>
       </div>
 
